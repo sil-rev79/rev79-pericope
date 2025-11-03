@@ -127,16 +127,16 @@ module Pericope
         case chapter
         when 1 then 31
         when 2 then 25
-        else 20 # Default fallback
+        else 100 # Default fallback
         end
       when "MAT"
         case chapter
         when 1 then 25
         when 2 then 23
-        else 20 # Default fallback
+        else 100 # Default fallback
         end
       else
-        20 # Default fallback for all other books
+        100 # Default fallback for all other books
       end
     end
 
