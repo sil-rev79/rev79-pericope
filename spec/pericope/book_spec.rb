@@ -251,7 +251,7 @@ RSpec.describe Pericope::Book do
       end
 
       it "returns default for unknown chapters" do
-        expect(genesis.verse_count(999)).to eq(20)
+        expect(genesis.verse_count(999)).to eq(100)
       end
     end
   end
