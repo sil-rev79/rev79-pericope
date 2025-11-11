@@ -2,6 +2,7 @@
 
 require "levenshtein"
 require_relative "book_data"
+require_relative "versification"
 require_relative "errors"
 
 module Pericope
@@ -118,26 +119,20 @@ module Pericope
       testament == :new
     end
 
-    def verse_count(chapter, _versification = nil)
-      # Default verse counts for English versification
-      # This is a simplified implementation - in a full implementation,
-      # this would use the versification system
-      case code
-      when "GEN"
-        case chapter
-        when 1 then 31
-        when 2 then 25
-        else 20 # Default fallback
-        end
-      when "MAT"
-        case chapter
-        when 1 then 25
-        when 2 then 23
-        else 20 # Default fallback
-        end
-      else
-        100 # Default fallback for all other books
-      end
+    def verse_count(chapter, versification = :english)
+      Versification.verse_count(code, chapter, versification)
+    end
+
+    def total_verses(versification = :english)
+      Versification.total_verses(code, versification)
+    end
+
+    def valid_chapter?(chapter, versification = :english)
+      Versification.valid_chapter?(code, chapter, versification)
+    end
+
+    def valid_verse?(chapter, verse, versification = :english)
+      Versification.valid_verse?(code, chapter, verse, versification)
     end
 
     def matches?(input)
