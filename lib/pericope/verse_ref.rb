@@ -110,8 +110,6 @@ module Pericope
         VerseRef.new(book, chapter, next_verse_num)
       elsif chapter < book.chapter_count
         VerseRef.new(book, chapter + 1, 1)
-      else
-        nil # End of book
       end
     end
 
@@ -123,8 +121,6 @@ module Pericope
         prev_chapter = chapter - 1
         last_verse = book.verse_count(prev_chapter)
         VerseRef.new(book, prev_chapter, last_verse)
-      else
-        nil # Beginning of book
       end
     end
 
