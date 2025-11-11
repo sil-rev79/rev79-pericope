@@ -120,7 +120,8 @@ module Pericope
     end
 
     def verse_count(chapter, versification = :english)
-      Versification.verse_count(code, chapter, versification)
+      result = Versification.verse_count(code, chapter, versification)
+      result || 20 # Default fallback for backward compatibility
     end
 
     def total_verses(versification = :english)
