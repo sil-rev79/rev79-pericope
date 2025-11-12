@@ -208,12 +208,15 @@ RSpec.describe Pericope::Versification do
       end
     end
 
-    it "has expected chapter counts for known books" do
+    it "has expected chapter counts for Old Testament books" do
       expect(described_class::ENGLISH["GEN"].length).to eq(50)
       expect(described_class::ENGLISH["PSA"].length).to eq(150)
+      expect(described_class::ENGLISH["OBA"].length).to eq(1)
+    end
+
+    it "has expected chapter counts for New Testament books" do
       expect(described_class::ENGLISH["MAT"].length).to eq(28)
       expect(described_class::ENGLISH["REV"].length).to eq(22)
-      expect(described_class::ENGLISH["OBA"].length).to eq(1)
       expect(described_class::ENGLISH["PHM"].length).to eq(1)
     end
   end

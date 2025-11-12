@@ -120,7 +120,10 @@ module Pericope
     end
 
     def verse_count(chapter, versification = :english)
-      Versification.verse_count(code, chapter, versification)
+      result = Versification.verse_count(code, chapter, versification)
+      return result if result
+
+      raise InvalidChapterError.new(code, chapter)
     end
 
     def total_verses(versification = :english)

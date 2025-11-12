@@ -182,8 +182,8 @@ RSpec.describe Pericope::VerseRef do
     end
 
     it "returns nil when at end of book" do
-      # Genesis has 50 chapters, assume last verse is 26 (simplified)
-      verse_ref = described_class.new(genesis, 50, 20) # Use a reasonable verse number
+      # Genesis 50 has 26 verses - use the actual last verse
+      verse_ref = described_class.new(genesis, 50, 26)
       next_verse = verse_ref.next_verse
       expect(next_verse).to be_nil
     end
