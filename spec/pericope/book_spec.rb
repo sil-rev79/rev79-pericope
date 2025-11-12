@@ -250,8 +250,8 @@ RSpec.describe Pericope::Book do
         expect(matthew.verse_count(1)).to eq(25)
       end
 
-      it "returns default for unknown chapters" do
-        expect(genesis.verse_count(999)).to eq(20)
+      it "raises exception for unknown chapters" do
+        expect { genesis.verse_count(999) }.to raise_error(Pericope::InvalidChapterError)
       end
     end
   end
