@@ -67,6 +67,9 @@ module Pericope
 
         # Parse ranges
         ranges = parse_ranges(range_part, book)
+        
+        # Validate ranges
+        validate_ranges(ranges, book)
 
         { book: book, ranges: ranges }
       end
@@ -153,6 +156,26 @@ module Pericope
         end
 
         [chapter, verse]
+      end
+      
+      def validate_ranges(ranges, book)
+        ranges.each do |range|
+          # Validate chapters
+          unless book.valid_chapter?(range[:start_chapter])
+            raise InvalidChapterError.new(book.code, range[:start_chapter])
+          end
+          unless book.valid_chapter?(range[:end_chapter])
+            raise InvalidChapterError.new(book.code, range[:end_chapter])
+          end
+          
+          # Validate verses
+          unless book.valid_verse?(range[:start_chapter], range[:start_verse])
+            raise InvalidVerseError.new(book.code, range[:start_chapter], range[:start_verse])
+          end
+          unless book.valid_verse?(range[:end_chapter], range[:end_verse])
+            raise InvalidVerseError.new(book.code, range[:end_chapter], range[:end_verse])
+          end
+        end
       end
     end
   end
