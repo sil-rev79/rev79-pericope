@@ -32,6 +32,14 @@ RSpec.describe Pericope::Pericope do
       expect { described_class.new("INVALID 1:1") }.to raise_error(Pericope::InvalidBookError)
     end
 
+    it "raises InvalidChapterError for invalid chapter" do
+      expect { described_class.new("GEN 999:1") }.to raise_error(Pericope::InvalidChapterError)
+    end
+
+    it "raises InvalidVerseError for invalid verse" do
+      expect { described_class.new("GEN 1:999") }.to raise_error(Pericope::InvalidVerseError)
+    end
+
     it "handles book names with flexible matching" do
       pericope = described_class.new("Genesis 1:1")
       expect(pericope.book.code).to eq("GEN")
