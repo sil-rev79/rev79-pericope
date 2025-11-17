@@ -8,7 +8,7 @@ gemspec
 gem "rake", "~> 13.0"
 gem "rspec", "~> 3.0"
 gem "rubocop", "~> 1.81"
-gem "rubocop-rspec", "~> 3.7"
+gem "rubocop-rspec", "~> 3.8"
 
 # Development dependencies
 group :development do
