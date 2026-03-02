@@ -54,12 +54,18 @@ module Pericope
           raise ParseError.new(reference_string, "empty reference")
         end
 
-        # Split book from ranges
-        parts = reference_string.strip.split(/\s+/, 2)
-        raise ParseError.new(reference_string, "no book found") if parts.empty?
+        reference_string = reference_string.strip
 
-        book_part = parts[0]
-        range_part = parts[1] || "1:1"
+        # Split book from ranges
+        book_part, range_part = if reference_string.start_with?(/\d /)
+                                  book_num, book_name, range_part = reference_string.split(/\s+/, 3)
+                                  ["#{book_num} #{book_name}", range_part]
+                                else
+                                  reference_string.split(/\s+/, 2)
+                                end
+        raise ParseError.new(reference_string, "no book found") if book_part.nil?
+
+        range_part ||= "1:1"
 
         # Find book
         book = Book.find_by_name(book_part)

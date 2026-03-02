@@ -45,6 +45,11 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.book.code).to eq("GEN")
     end
 
+    it 'handles a numbered book' do
+      pericope = described_class.new("1 Corinthians 1:1")
+      expect(pericope.book.code).to eq("1CO")
+    end
+
     it "defaults to chapter 1 verse 1 if no range provided" do
       pericope = described_class.new("GEN")
       expect(pericope.to_s).to eq("GEN 1:1")
