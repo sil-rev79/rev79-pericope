@@ -96,12 +96,14 @@ module Pericope
       to_a.length
     end
 
+    # give a precise chapter count accounting for partial chapters
     def chapter_count
-      chapters = ::Set.new
-      @ranges.each do |range|
-        (range[:start_chapter]..range[:end_chapter]).each { |ch| chapters << ch }
+      return 0.0 if @ranges.empty?
+
+      verses_by_chapter = to_a.uniq.group_by(&:chapter)
+      verses_by_chapter.sum do |chapter, verses|
+        verses.size.to_f / @book.verse_count(chapter)
       end
-      chapters.size
     end
 
     def chapter_list

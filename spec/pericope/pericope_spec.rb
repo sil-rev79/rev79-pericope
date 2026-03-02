@@ -216,14 +216,22 @@ RSpec.describe Pericope::Pericope do
     end
 
     describe "#chapter_count" do
-      it "returns 1 for single chapter" do
+      it "returns precise float for single chapter" do
         pericope = described_class.new("GEN 1:1-3")
-        expect(pericope.chapter_count).to eq(1)
+        # GEN 1 has 31 verses. 3/31 = 0.096774...
+        expect(pericope.chapter_count).to be_within(0.001).of(3.0 / 31.0)
       end
 
       it "returns correct count for cross-chapter range" do
         pericope = described_class.new("GEN 1:1-3:1")
-        expect(pericope.chapter_count).to eq(3)
+        # GEN 1 (31/31) + GEN 2 (25/25) + GEN 3 (1/24) = 2.04166...
+        expect(pericope.chapter_count).to be_within(0.001).of(1.0 + 1.0 + (1.0 / 24.0))
+      end
+
+      it "returns 2.5 for GEN 1:1-3:12" do
+        pericope = described_class.new("GEN 1:1-3:12")
+        # GEN 1 (31/31) + GEN 2 (25/25) + GEN 3 (12/24) = 2.5
+        expect(pericope.chapter_count).to eq(2.5)
       end
     end
 
