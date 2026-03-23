@@ -23,6 +23,37 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.range_count).to eq(3)
     end
 
+    it "parses complex ranges including whole chapters" do
+      pericope = described_class.new("Genesis 1, 5-7, 11:1-3, 5-7")
+      expect(pericope.range_count).to eq(4)
+
+      ranges = pericope.ranges
+
+      # 1 -> whole chapter 1
+      expect(ranges[0][:start_chapter]).to eq(1)
+      expect(ranges[0][:start_verse]).to eq(1)
+      expect(ranges[0][:end_chapter]).to eq(1)
+      expect(ranges[0][:end_verse]).to eq(31) # Genesis 1 has 31 verses
+
+      # 5-7 -> all of chapters 5 through 7
+      expect(ranges[1][:start_chapter]).to eq(5)
+      expect(ranges[1][:start_verse]).to eq(1)
+      expect(ranges[1][:end_chapter]).to eq(7)
+      expect(ranges[1][:end_verse]).to eq(24) # Genesis 7 has 24 verses
+
+      # 11:1-3 -> verses 1-3 of chapter 11
+      expect(ranges[2][:start_chapter]).to eq(11)
+      expect(ranges[2][:start_verse]).to eq(1)
+      expect(ranges[2][:end_chapter]).to eq(11)
+      expect(ranges[2][:end_verse]).to eq(3)
+
+      # 5-7 -> verses 5-7 of chapter 11
+      expect(ranges[3][:start_chapter]).to eq(11)
+      expect(ranges[3][:start_verse]).to eq(5)
+      expect(ranges[3][:end_chapter]).to eq(11)
+      expect(ranges[3][:end_verse]).to eq(7)
+    end
+
     it "raises ParseError for empty reference" do
       expect { described_class.new("") }.to raise_error(Pericope::ParseError)
       expect { described_class.new(nil) }.to raise_error(Pericope::ParseError)

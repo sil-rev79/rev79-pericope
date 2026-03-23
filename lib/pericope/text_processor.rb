@@ -101,40 +101,86 @@ module Pericope
         ranges = []
         # Split on commas for multiple ranges
         range_parts = range_text.split(",").map(&:strip)
-        current_chapter = nil
+        context = nil
 
         range_parts.each do |part|
-          current_chapter = parse_single_range(part, current_chapter, book, ranges)
+          context = parse_single_range(part, context, book, ranges)
         end
 
         ranges
       end
 
-      def parse_single_range(range_text, current_chapter, _book, ranges)
-        # Handle different range formats:
-        # "1:1" - single verse
-        # "1:1-5" - verse range in same chapter
-        # "1:1-2:5" - cross-chapter range
-        # "3" - verse in current chapter (when current_chapter is set)
-
+      def parse_single_range(range_text, context, book, ranges)
         if range_text.include?("-")
-          # Range
           start_part, end_part = range_text.split("-", 2).map(&:strip)
-          start_chapter, start_verse = parse_verse_reference(start_part, current_chapter)
 
-          if end_part.include?(":")
-            # Cross-chapter range like "1:1-2:5"
-            end_chapter, end_verse = parse_verse_reference(end_part, start_chapter)
+          if start_part.include?(":")
+            # from verse in specified chapter
+            start_chapter, start_verse = start_part.split(":", 2).map(&:to_i)
+            if end_part.include?(":")
+              # to verse in specified chapter
+              end_chapter, end_verse = end_part.split(":", 2).map(&:to_i)
+            else
+              # to verse in same chapter
+              end_chapter = start_chapter
+              end_verse = end_part.to_i
+            end
+            new_context = end_chapter
+          elsif end_part.include?(":")
+            if context.is_a?(Integer)
+              # from a specific verse in the context chapter to a specific verse in another chapter
+              start_chapter = context
+              start_verse = start_part.to_i
+              end_chapter, end_verse = end_part.split(":", 2).map(&:to_i)
+              new_context = end_chapter
+            else
+              # from the beginning of a chapter to a specific verse in another chapter
+              start_chapter = start_part.to_i
+              start_verse = 1
+              end_chapter, end_verse = end_part.split(":", 2).map(&:to_i)
+              new_context = end_chapter
+            end
           else
-            # Same chapter range like "1:1-5" or "5-7" (in current chapter)
-            end_chapter = start_chapter
-            end_verse = end_part.to_i
+            if context.is_a?(Integer)
+              # specific verse to specific verse in context chapter
+              start_chapter = context
+              start_verse = start_part.to_i
+              end_chapter = context
+              end_verse = end_part.to_i
+              new_context = context
+            else
+              # from the beginning of one chapter to the end of another
+              start_chapter = start_part.to_i
+              start_verse = 1
+              end_chapter = end_part.to_i
+              end_verse = book.verse_count(end_chapter)
+              new_context = :chapter_mode
+            end
           end
         else
-          # Single verse
-          start_chapter, start_verse = parse_verse_reference(range_text, current_chapter)
-          end_chapter = start_chapter
-          end_verse = start_verse
+          if range_text.include?(":")
+            # single verse in specified chapter
+            start_chapter, start_verse = range_text.split(":", 2).map(&:to_i)
+            end_chapter = start_chapter
+            end_verse = start_verse
+            new_context = start_chapter
+          else
+            if context.is_a?(Integer)
+              # single verse in context chapter
+              start_chapter = context
+              start_verse = range_text.to_i
+              end_chapter = context
+              end_verse = range_text.to_i
+              new_context = context
+            else
+              # single chapter
+              start_chapter = range_text.to_i
+              start_verse = 1
+              end_chapter = start_chapter
+              end_verse = book.verse_count(start_chapter)
+              new_context = :chapter_mode
+            end
+          end
         end
 
         ranges << {
@@ -144,24 +190,7 @@ module Pericope
           end_verse: end_verse
         }
 
-        # Return the chapter for context in next iteration
-        start_chapter
-      end
-
-      def parse_verse_reference(verse_text, current_chapter = nil)
-        if verse_text.include?(":")
-          chapter, verse = verse_text.split(":", 2).map(&:to_i)
-        elsif current_chapter
-          # If we have a current chapter context, treat this as a verse in that chapter
-          chapter = current_chapter
-          verse = verse_text.to_i
-        else
-          # Assume it's just a chapter
-          chapter = verse_text.to_i
-          verse = 1
-        end
-
-        [chapter, verse]
+        new_context
       end
 
       def validate_ranges(ranges, book)
