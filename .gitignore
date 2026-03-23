@@ -57,3 +57,4 @@ Thumbs.db
 
 # Gem files
 *.gem
+.cecli*
