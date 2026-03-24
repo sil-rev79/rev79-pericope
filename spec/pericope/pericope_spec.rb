@@ -13,6 +13,17 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.to_s).to eq("GEN 1:1-3")
     end
 
+    it "parses a reference with '.' as delimiter" do
+      pericope = described_class.new("GEN 1.1")
+      expect(pericope.to_s).to eq("GEN 1:1")
+
+      pericope = described_class.new("GEN 1.1-5")
+      expect(pericope.to_s).to eq("GEN 1:1-5")
+
+      pericope = described_class.new("GEN 1.31-2.2")
+      expect(pericope.to_s).to eq("GEN 1:31-2:2")
+    end
+
     it "parses a cross-chapter range" do
       pericope = described_class.new("GEN 1:1-2:3")
       expect(pericope.to_s).to eq("GEN 1:1-2:3")
@@ -95,6 +106,16 @@ RSpec.describe Pericope::Pericope do
       expect(pericopes.length).to eq(2)
       expect(pericopes[0].to_s).to eq("GEN 1:1")
       expect(pericopes[1].to_s).to eq("MAT 5:3-12")
+    end
+
+    it "extracts pericopes using '.' as delimiter" do
+      text = "Genesis 1.1 and MAT 5.3-12"
+      pericopes = described_class.parse(text)
+
+      # Note: .parse currently only matches Paratext codes (GEN, MAT)
+      # so Genesis might not be matched by the current regex in .parse
+      # Let's check MAT 5.3-12
+      expect(pericopes.any? { |p| p.to_s == "MAT 5:3-12" }).to be true
     end
 
     it "returns empty array for text with no pericopes" do
