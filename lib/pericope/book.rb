@@ -80,9 +80,10 @@ module Pericope
       private
 
       # Find book using fuzzy string matching
-      def find_by_fuzzy_match(name, max_distance: 2)
+      def find_by_fuzzy_match(name)
         return nil if name.length < 3 # Too short for fuzzy matching
 
+        max_distance = (name.length / 4.0).ceil
         best_match = nil
         best_distance = max_distance + 1
 
