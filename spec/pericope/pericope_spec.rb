@@ -54,31 +54,28 @@ RSpec.describe Pericope::Pericope do
       pericope = described_class.new("Genesis 1, 5-7, 11:1-3, 5-7")
       expect(pericope.range_count).to eq(4)
 
-      ranges = pericope.ranges
-
-      # 1 -> whole chapter 1
-      expect(ranges[0][:start_chapter]).to eq(1)
-      expect(ranges[0][:start_verse]).to eq(1)
-      expect(ranges[0][:end_chapter]).to eq(1)
-      expect(ranges[0][:end_verse]).to eq(31) # Genesis 1 has 31 verses
-
-      # 5-7 -> all of chapters 5 through 7
-      expect(ranges[1][:start_chapter]).to eq(5)
-      expect(ranges[1][:start_verse]).to eq(1)
-      expect(ranges[1][:end_chapter]).to eq(7)
-      expect(ranges[1][:end_verse]).to eq(24) # Genesis 7 has 24 verses
-
-      # 11:1-3 -> verses 1-3 of chapter 11
-      expect(ranges[2][:start_chapter]).to eq(11)
-      expect(ranges[2][:start_verse]).to eq(1)
-      expect(ranges[2][:end_chapter]).to eq(11)
-      expect(ranges[2][:end_verse]).to eq(3)
-
-      # 5-7 -> verses 5-7 of chapter 11
-      expect(ranges[3][:start_chapter]).to eq(11)
-      expect(ranges[3][:start_verse]).to eq(5)
-      expect(ranges[3][:end_chapter]).to eq(11)
-      expect(ranges[3][:end_verse]).to eq(7)
+      expect(pericope.ranges).to contain_exactly(
+        {
+          # 1 -> whole chapter 1
+          start_chapter: 1, start_verse: 1,
+          end_chapter: 1, end_verse: 31 # Genesis 1 has 31 verses
+        },
+        {
+          # 5-7 -> all of chapters 5 through 7
+          start_chapter: 5, start_verse: 1,
+          end_chapter: 7, end_verse: 24 # Genesis 7 has 24 verses
+        },
+        {
+          # 11:1-3 -> verses 1-3 of chapter 11
+          start_chapter: 11, start_verse: 1,
+          end_chapter: 11, end_verse: 3
+        },
+        {
+          # 5-7 -> verses 5-7 of chapter 11
+          start_chapter: 11, start_verse: 5,
+          end_chapter: 11, end_verse: 7
+        }
+      )
     end
 
     it "parses a whole book" do
@@ -118,7 +115,7 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.book.code).to eq("GEN")
     end
 
-    it 'handles a numbered book' do
+    it "handles a numbered book" do
       pericope = described_class.new("1 Corinthians 1:1")
       expect(pericope.book.code).to eq("1CO")
     end
@@ -138,7 +135,7 @@ RSpec.describe Pericope::Pericope do
       text = "Genesis 1.1 and MAT 5.3-12"
       pericopes = described_class.parse(text)
 
-      # Note: .parse currently only matches Paratext codes (GEN, MAT)
+      # NOTE: .parse currently only matches Paratext codes (GEN, MAT)
       # so Genesis might not be matched by the current regex in .parse
       # Let's check MAT 5.3-12
       expect(pericopes.any? { |p| p.to_s == "MAT 5:3-12" }).to be true
