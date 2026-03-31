@@ -140,6 +140,13 @@ module Pericope
               end_chapter, end_verse = end_part.split(":", 2).map(&:to_i)
               new_context = end_chapter
             end
+          elsif book.chapter_count == 1
+            # verse range in single chapter book
+            start_chapter = 1
+            start_verse = start_part.to_i
+            end_chapter = 1
+            end_verse = end_part.to_i
+            new_context = 1
           else
             if context.is_a?(Integer)
               # specific verse to specific verse in context chapter
@@ -164,6 +171,14 @@ module Pericope
             end_chapter = start_chapter
             end_verse = start_verse
             new_context = start_chapter
+          elsif book.chapter_count == 1
+            # single verse in single-chapter book
+            start_chapter = 1
+            start_verse = range_text.to_i
+            end_chapter = 1
+            end_verse = start_verse
+            new_context = 1
+            new_context = 1
           else
             if context.is_a?(Integer)
               # single verse in context chapter

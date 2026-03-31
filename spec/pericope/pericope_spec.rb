@@ -8,9 +8,25 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.to_s).to eq("GEN 1:1")
     end
 
+    it "parses a single verse reference in a single-chapter book" do
+      pericope = described_class.new("JUD 20")
+      expect(pericope.to_s).to eq("JUD 1:20")
+    end
+
     it "parses a verse range" do
       pericope = described_class.new("GEN 1:1-3")
       expect(pericope.to_s).to eq("GEN 1:1-3")
+    end
+
+    it "parses a chapterless range for a single-chapter book" do
+      pericope = described_class.new("JUD 22-24")
+      expect(pericope.range_count).to eq(1)
+      range = pericope.ranges[0]
+
+      expect(range[:start_chapter]).to eq(1)
+      expect(range[:start_verse]).to eq(22)
+      expect(range[:end_chapter]).to eq(1)
+      expect(range[:end_verse]).to eq(24)
     end
 
     it "parses a reference with '.' as delimiter" do
@@ -91,6 +107,10 @@ RSpec.describe Pericope::Pericope do
 
     it "raises InvalidVerseError for invalid verse" do
       expect { described_class.new("GEN 1:999") }.to raise_error(Pericope::InvalidVerseError)
+    end
+
+    it "raises InvalidVerseError for invalid verse in single chapter book" do
+      expect { described_class.new("JUD 999") }.to raise_error(Pericope::InvalidVerseError)
     end
 
     it "handles book names with flexible matching" do
