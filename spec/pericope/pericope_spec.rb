@@ -65,6 +65,17 @@ RSpec.describe Pericope::Pericope do
       expect(ranges[3][:end_verse]).to eq(7)
     end
 
+    it "parses a whole book" do
+      pericope = described_class.new("Genesis")
+      expect(pericope.range_count).to eq(1)
+      range = pericope.ranges[0]
+
+      expect(range[:start_chapter]).to eq(1)
+      expect(range[:start_verse]).to eq(1)
+      expect(range[:end_chapter]).to eq(50) # Genesis has 50 chapters
+      expect(range[:end_verse]).to eq(26) # Genesis 50 has 26 verses
+    end
+
     it "raises ParseError for empty reference" do
       expect { described_class.new("") }.to raise_error(Pericope::ParseError)
       expect { described_class.new(nil) }.to raise_error(Pericope::ParseError)
@@ -90,11 +101,6 @@ RSpec.describe Pericope::Pericope do
     it 'handles a numbered book' do
       pericope = described_class.new("1 Corinthians 1:1")
       expect(pericope.book.code).to eq("1CO")
-    end
-
-    it "defaults to chapter 1 verse 1 if no range provided" do
-      pericope = described_class.new("GEN")
-      expect(pericope.to_s).to eq("GEN 1:1")
     end
   end
 

@@ -65,14 +65,12 @@ module Pericope
                                 end
         raise ParseError.new(reference_string, "no book found") if book_part.nil?
 
-        range_part ||= "1:1"
-
         # Find book
         book = Book.find_by_name(book_part)
         raise InvalidBookError, book_part unless book
 
         # Parse ranges
-        ranges = parse_ranges(range_part, book)
+        ranges = range_part ? parse_ranges(range_part, book) : [whole_book_range(book)]
 
         # Validate ranges
         validate_ranges(ranges, book)
@@ -193,6 +191,15 @@ module Pericope
         }
 
         new_context
+      end
+
+      def whole_book_range(book)
+        {
+          start_chapter: 1,
+          start_verse: 1,
+          end_chapter: book.chapter_count,
+          end_verse: book.verse_count(book.chapter_count)
+        }
       end
 
       def validate_ranges(ranges, book)

@@ -8,14 +8,13 @@ require_relative "errors"
 module Pericope
   # Represents a biblical book with flexible name recognition
   class Book
-    attr_reader :code, :number, :name, :testament, :chapter_count, :aliases
+    attr_reader :code, :number, :name, :testament, :aliases
 
     def initialize(book_info)
       @code = book_info.code
       @number = book_info.number
       @name = book_info.name
       @testament = book_info.testament
-      @chapter_count = book_info.chapter_count
       @aliases = book_info.aliases.dup.freeze
     end
 
@@ -129,6 +128,10 @@ module Pericope
 
     def total_verses(versification = :english)
       Versification.total_verses(code, versification)
+    end
+
+    def chapter_count(versification = :english)
+      Versification.book_chapters(code, versification).length
     end
 
     def valid_chapter?(chapter, versification = :english)
