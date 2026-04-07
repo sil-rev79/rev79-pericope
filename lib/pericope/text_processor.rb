@@ -219,6 +219,7 @@ module Pericope
         validate_chapter(book, range[:end_chapter])
         validate_verse(book, range[:start_chapter], range[:start_verse])
         validate_verse(book, range[:end_chapter], range[:end_verse])
+        validate_range_order(range)
       end
 
       def validate_chapter(book, chapter)
@@ -231,6 +232,13 @@ module Pericope
         return if book.valid_verse?(chapter, verse)
 
         raise InvalidVerseError.new(book.code, chapter, verse)
+      end
+
+      def validate_range_order(range)
+        return if range[:start_chapter] < range[:end_chapter]
+        return if range[:start_chapter] == range[:end_chapter] && range[:start_verse] <= range[:end_verse]
+
+        raise InvalidRangeError.new(format_ranges([range]))
       end
     end
   end

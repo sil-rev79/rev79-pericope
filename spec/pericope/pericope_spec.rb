@@ -110,6 +110,14 @@ RSpec.describe Pericope::Pericope do
       expect { described_class.new("JUD 999") }.to raise_error(Pericope::InvalidVerseError)
     end
 
+    it "raises error for range with start chapter after end chapter" do
+      expect { described_class.new("Gen 2:3 - 1:8") }.to raise_error(Pericope::InvalidRangeError)
+    end
+
+    it "raises error for range with start verse after end verse in one chapter" do
+      expect { described_class.new("Gen 2:8 - 2:3") }.to raise_error(Pericope::PericopeError)
+    end
+
     it "handles book names with flexible matching" do
       pericope = described_class.new("Genesis 1:1")
       expect(pericope.book.code).to eq("GEN")
