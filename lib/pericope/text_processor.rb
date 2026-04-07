@@ -14,7 +14,7 @@ module Pericope
         pericopes = []
 
         # Pattern to match book codes and ranges
-        pattern = /\b([A-Z]{3}|[1-3][A-Z]{2})\s+([0-9:.,-]+)/i
+        pattern = /\b([A-Z]{3}|[1-3][A-Z]{2})\s+([0-9:.,;-]+)/i
 
         text.scan(pattern) do |book_code, range_text|
           pericope = Pericope.new("#{book_code} #{range_text}", versification)
@@ -97,8 +97,8 @@ module Pericope
 
       def parse_ranges(range_text, book)
         ranges = []
-        # Normalize chapter-verse delimiter
-        range_text = range_text.gsub(".", ":")
+        # Normalize chapter-verse and range delimiters
+        range_text = range_text.gsub(".", ":").gsub(";", ",")
         # Split on commas for multiple ranges
         range_parts = range_text.split(",").map(&:strip)
         context = nil

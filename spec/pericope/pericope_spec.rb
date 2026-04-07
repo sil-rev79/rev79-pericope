@@ -45,8 +45,8 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.to_s).to eq("GEN 1:1-2:3")
     end
 
-    it "parses multiple ranges" do
-      pericope = described_class.new("GEN 1:1,3,5")
+    it "parses multiple ranges with comma and semicolon delimiters" do
+      pericope = described_class.new("GEN 1:1,3;5")
       expect(pericope.range_count).to eq(3)
     end
 
