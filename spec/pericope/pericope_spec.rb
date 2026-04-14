@@ -40,6 +40,11 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.to_s).to eq("GEN 1:31-2:2")
     end
 
+    it "parses a reference with en-dash as range delimiter" do
+      pericope = described_class.new("GEN 1:1–5")
+      expect(pericope.to_s).to eq("GEN 1:1-5")
+    end
+
     it "parses a cross-chapter range" do
       pericope = described_class.new("GEN 1:1-2:3")
       expect(pericope.to_s).to eq("GEN 1:1-2:3")
