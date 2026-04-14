@@ -15,7 +15,7 @@ RSpec.describe Pericope::Pericope do
 
     it "parses a verse range" do
       pericope = described_class.new("GEN 1:1-3")
-      expect(pericope.to_s).to eq("GEN 1:1-3")
+      expect(pericope.to_s).to eq("GEN 1:1–3")
     end
 
     it "parses a chapterless range for a single-chapter book" do
@@ -34,20 +34,20 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.to_s).to eq("GEN 1:1")
 
       pericope = described_class.new("GEN 1.1-5")
-      expect(pericope.to_s).to eq("GEN 1:1-5")
+      expect(pericope.to_s).to eq("GEN 1:1–5")
 
       pericope = described_class.new("GEN 1.31-2.2")
-      expect(pericope.to_s).to eq("GEN 1:31-2:2")
+      expect(pericope.to_s).to eq("GEN 1:31–2:2")
     end
 
     it "parses a reference with en-dash as range delimiter" do
       pericope = described_class.new("GEN 1:1–5")
-      expect(pericope.to_s).to eq("GEN 1:1-5")
+      expect(pericope.to_s).to eq("GEN 1:1–5")
     end
 
     it "parses a cross-chapter range" do
       pericope = described_class.new("GEN 1:1-2:3")
-      expect(pericope.to_s).to eq("GEN 1:1-2:3")
+      expect(pericope.to_s).to eq("GEN 1:1–2:3")
     end
 
     it "parses multiple ranges with comma and semicolon delimiters" do
@@ -151,7 +151,7 @@ RSpec.describe Pericope::Pericope do
 
       expect(pericopes.length).to eq(2)
       expect(pericopes[0].to_s).to eq("GEN 1:1")
-      expect(pericopes[1].to_s).to eq("MAT 5:3-12")
+      expect(pericopes[1].to_s).to eq("MAT 5:3–12")
     end
 
     it "extracts pericopes using '.' as delimiter" do
@@ -161,7 +161,7 @@ RSpec.describe Pericope::Pericope do
       # NOTE: .parse currently only matches Paratext codes (GEN, MAT)
       # so Genesis might not be matched by the current regex in .parse
       # Let's check MAT 5.3-12
-      expect(pericopes.any? { |p| p.to_s == "MAT 5:3-12" }).to be true
+      expect(pericopes.any? { |p| p.to_s == "MAT 5:3–12" }).to be true
     end
 
     it "returns empty array for text with no pericopes" do
@@ -183,19 +183,19 @@ RSpec.describe Pericope::Pericope do
     let(:pericope) { described_class.new("GEN 1:1-3") }
 
     it "returns canonical format by default" do
-      expect(pericope.to_s).to eq("GEN 1:1-3")
+      expect(pericope.to_s).to eq("GEN 1:1–3")
     end
 
     it "returns canonical format when specified" do
-      expect(pericope.to_s(:canonical)).to eq("GEN 1:1-3")
+      expect(pericope.to_s(:canonical)).to eq("GEN 1:1–3")
     end
 
     it "returns full name format when specified" do
-      expect(pericope.to_s(:full_name)).to eq("Genesis 1:1-3")
+      expect(pericope.to_s(:full_name)).to eq("Genesis 1:1–3")
     end
 
     it "returns abbreviated format when specified" do
-      expect(pericope.to_s(:abbreviated)).to eq("GEN 1:1-3")
+      expect(pericope.to_s(:abbreviated)).to eq("GEN 1:1–3")
     end
 
     it "returns empty string for empty pericope" do
@@ -507,21 +507,21 @@ RSpec.describe Pericope::Pericope do
         pericope = described_class.new("GEN 1:1-5")
         ranges = pericope.continuous_ranges
         expect(ranges.length).to eq(1)
-        expect(ranges.first.to_s).to eq("GEN 1:1-5")
+        expect(ranges.first.to_s).to eq("GEN 1:1–5")
       end
 
       it "breaks discontinuous ranges into continuous parts" do
         pericope = described_class.new("GEN 1:1-3,5-7,10")
         ranges = pericope.continuous_ranges
         expect(ranges.length).to eq(3)
-        expect(ranges.map(&:to_s)).to contain_exactly("GEN 1:1-3", "GEN 1:5-7", "GEN 1:10")
+        expect(ranges.map(&:to_s)).to contain_exactly("GEN 1:1–3", "GEN 1:5–7", "GEN 1:10")
       end
 
       it "handles cross-chapter continuous ranges" do
         pericope = described_class.new("GEN 1:30-2:2")
         ranges = pericope.continuous_ranges
         expect(ranges.length).to eq(1)
-        expect(ranges.first.to_s).to eq("GEN 1:30-2:2")
+        expect(ranges.first.to_s).to eq("GEN 1:30–2:2")
       end
     end
   end
@@ -665,7 +665,7 @@ RSpec.describe Pericope::Pericope do
         pericope1 = described_class.new("GEN 1:1-10")
         pericope2 = described_class.new("GEN 1:5-15")
         result = pericope1.union(pericope2)
-        expect(result.to_s).to eq("GEN 1:1-15")
+        expect(result.to_s).to eq("GEN 1:1–15")
       end
 
       it "combines two non-overlapping ranges" do
@@ -686,7 +686,7 @@ RSpec.describe Pericope::Pericope do
         pericope1 = described_class.new("GEN 1:1-5")
         pericope2 = described_class.new("GEN 1:1-5")
         result = pericope1.union(pericope2)
-        expect(result.to_s).to eq("GEN 1:1-5")
+        expect(result.to_s).to eq("GEN 1:1–5")
       end
     end
 
@@ -695,7 +695,7 @@ RSpec.describe Pericope::Pericope do
         pericope1 = described_class.new("GEN 1:1-10")
         pericope2 = described_class.new("GEN 1:5-15")
         result = pericope1.intersection(pericope2)
-        expect(result.to_s).to eq("GEN 1:5-10")
+        expect(result.to_s).to eq("GEN 1:5–10")
       end
 
       it "returns empty for non-overlapping ranges" do
@@ -716,7 +716,7 @@ RSpec.describe Pericope::Pericope do
         pericope1 = described_class.new("GEN 1:1-5")
         pericope2 = described_class.new("GEN 1:1-5")
         result = pericope1.intersection(pericope2)
-        expect(result.to_s).to eq("GEN 1:1-5")
+        expect(result.to_s).to eq("GEN 1:1–5")
       end
     end
 
@@ -725,14 +725,14 @@ RSpec.describe Pericope::Pericope do
         pericope1 = described_class.new("GEN 1:1-10")
         pericope2 = described_class.new("GEN 1:5-15")
         result = pericope1.subtract(pericope2)
-        expect(result.to_s).to eq("GEN 1:1-4")
+        expect(result.to_s).to eq("GEN 1:1–4")
       end
 
       it "returns self when no overlap" do
         pericope1 = described_class.new("GEN 1:1-5")
         pericope2 = described_class.new("GEN 1:10-15")
         result = pericope1.subtract(pericope2)
-        expect(result.to_s).to eq("GEN 1:1-5")
+        expect(result.to_s).to eq("GEN 1:1–5")
       end
 
       it "returns self for different books" do
@@ -754,19 +754,19 @@ RSpec.describe Pericope::Pericope do
       it "combines adjacent ranges" do
         pericope = described_class.new("GEN 1:1-3,4-6")
         result = pericope.normalize
-        expect(result.to_s).to eq("GEN 1:1-6")
+        expect(result.to_s).to eq("GEN 1:1–6")
       end
 
       it "sorts and combines overlapping ranges" do
         pericope = described_class.new("GEN 1:5-10,1-7")
         result = pericope.normalize
-        expect(result.to_s).to eq("GEN 1:1-10")
+        expect(result.to_s).to eq("GEN 1:1–10")
       end
 
       it "returns self for already normalized range" do
         pericope = described_class.new("GEN 1:1-5")
         result = pericope.normalize
-        expect(result.to_s).to eq("GEN 1:1-5")
+        expect(result.to_s).to eq("GEN 1:1–5")
       end
     end
 
@@ -796,7 +796,7 @@ RSpec.describe Pericope::Pericope do
       it "contracts range by removing verses from ends" do
         pericope = described_class.new("GEN 1:1-10")
         result = pericope.contract(2, 3)
-        expect(result.to_s).to eq("GEN 1:3-7") # Remove 2 from start, 3 from end
+        expect(result.to_s).to eq("GEN 1:3–7") # Remove 2 from start, 3 from end
       end
 
       it "returns empty when contracting too much" do

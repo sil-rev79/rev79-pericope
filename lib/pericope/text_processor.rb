@@ -84,16 +84,17 @@ module Pericope
       private
 
       def format_ranges(ranges)
+        # note en-dash is used for ranges
         ranges.map do |range|
           if range[:start_chapter] == range[:end_chapter] && range[:start_verse] == range[:end_verse]
             # Single verse
             "#{range[:start_chapter]}:#{range[:start_verse]}"
           elsif range[:start_chapter] == range[:end_chapter]
             # Same chapter range
-            "#{range[:start_chapter]}:#{range[:start_verse]}-#{range[:end_verse]}"
+            "#{range[:start_chapter]}:#{range[:start_verse]}–#{range[:end_verse]}"
           else
             # Cross-chapter range
-            "#{range[:start_chapter]}:#{range[:start_verse]}-#{range[:end_chapter]}:#{range[:end_verse]}"
+            "#{range[:start_chapter]}:#{range[:start_verse]}–#{range[:end_chapter]}:#{range[:end_verse]}"
           end
         end.join(",")
       end
