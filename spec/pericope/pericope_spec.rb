@@ -127,6 +127,16 @@ RSpec.describe Pericope::Pericope do
       pericope = described_class.new("1 Corinthians 1:1")
       expect(pericope.book.code).to eq("1CO")
     end
+
+    it "handles Song of Solomon" do
+      pericope = described_class.new("Song of Solomon 1:1")
+      expect(pericope.book.code).to eq("SNG")
+    end
+
+    it "handles Song of Songs" do
+      pericope = described_class.new("Song of Songs 1:1")
+      expect(pericope.book.code).to eq("SNG")
+    end
   end
 
   describe ".parse" do

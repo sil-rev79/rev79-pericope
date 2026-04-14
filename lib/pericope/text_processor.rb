@@ -57,7 +57,10 @@ module Pericope
         reference_string = reference_string.strip
 
         # Split book from ranges
-        book_part, range_part = if reference_string.start_with?(/\d /)
+        book_part, range_part = if reference_string.downcase.start_with?(/song\s+of/)
+                                  part_a, part_b, part_c, range_part = reference_string.split(/\s+/, 4)
+                                  ["#{part_a} #{part_b} #{part_c}", range_part]
+                                elsif reference_string.start_with?(/\d /)
                                   book_num, book_name, range_part = reference_string.split(/\s+/, 3)
                                   ["#{book_num} #{book_name}", range_part]
                                 else
