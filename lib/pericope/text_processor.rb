@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "book"
+require_relative "range"
 require_relative "errors"
 
 module Pericope
@@ -84,17 +85,17 @@ module Pericope
       private
 
       def format_ranges(ranges)
-        # note en-dash is used for ranges
+        # NOTE: en-dash is used for ranges
         ranges.map do |range|
-          if range[:start_chapter] == range[:end_chapter] && range[:start_verse] == range[:end_verse]
+          if range.single_verse?
             # Single verse
-            "#{range[:start_chapter]}:#{range[:start_verse]}"
-          elsif range[:start_chapter] == range[:end_chapter]
+            "#{range.start_chapter}:#{range.start_verse}"
+          elsif range.single_chapter?
             # Same chapter range
-            "#{range[:start_chapter]}:#{range[:start_verse]}–#{range[:end_verse]}"
+            "#{range.start_chapter}:#{range.start_verse}–#{range.end_verse}"
           else
             # Cross-chapter range
-            "#{range[:start_chapter]}:#{range[:start_verse]}–#{range[:end_chapter]}:#{range[:end_verse]}"
+            "#{range.start_chapter}:#{range.start_verse}–#{range.end_chapter}:#{range.end_verse}"
           end
         end.join(",")
       end
@@ -134,10 +135,7 @@ module Pericope
             end_chapter = start_chapter
             end_verse = end_part.to_i
           end
-          ranges << {
-            start_chapter: start_chapter, start_verse: start_verse,
-            end_chapter: end_chapter, end_verse: end_verse
-          }
+          ranges << Range.new(start_chapter, start_verse, end_chapter, end_verse)
           end_chapter # new context
         elsif end_part.include?(":")
           if context.is_a?(Integer)
@@ -150,18 +148,15 @@ module Pericope
             start_verse = 1
           end
           end_chapter, end_verse = end_part.split(":", 2).map(&:to_i)
-          ranges << {
-            start_chapter: start_chapter, start_verse: start_verse,
-            end_chapter: end_chapter, end_verse: end_verse
-          }
+          ranges << Range.new(start_chapter, start_verse, end_chapter, end_verse)
           end_chapter # new context
         elsif book.chapter_count == 1
           # verse range in single chapter book
-          ranges << verses_to_range(1, start_part.to_i, end_part.to_i)
+          ranges << Range.new(1, start_part.to_i, 1, end_part.to_i)
           1 # new context
         elsif context.is_a?(Integer)
           # specific verse to specific verse in context chapter
-          ranges << verses_to_range(context, start_part.to_i, end_part.to_i)
+          ranges << Range.new(context, start_part.to_i, context, end_part.to_i)
           context # keep the same context
         else
           # from the beginning of one chapter to the end of another
@@ -174,15 +169,15 @@ module Pericope
         if ref_text.include?(":")
           # single verse in specified chapter
           chapter, verse = ref_text.split(":", 2).map(&:to_i)
-          ranges << verses_to_range(chapter, verse, verse)
+          ranges << Range.new(chapter, verse, chapter, verse)
           chapter # new context
         elsif book.chapter_count == 1
           # single verse in single-chapter book
-          ranges << verses_to_range(1, ref_text.to_i, ref_text.to_i)
+          ranges << Range.new(1, ref_text.to_i, 1, ref_text.to_i)
           1 # new context
         elsif context.is_a?(Integer)
           # single verse in context chapter
-          ranges << verses_to_range(context, ref_text.to_i, ref_text.to_i)
+          ranges << Range.new(context, ref_text.to_i, context, ref_text.to_i)
           context # keep the same context
         else
           # single chapter
@@ -191,27 +186,12 @@ module Pericope
         end
       end
 
-      def verses_to_range(chapter, start_verse, end_verse)
-        {
-          start_chapter: chapter, start_verse: start_verse,
-          end_chapter: chapter, end_verse: end_verse
-        }
-      end
-
       def chapters_to_range(book, start_chapter, end_chapter)
-        {
-          start_chapter: start_chapter, start_verse: 1,
-          end_chapter: end_chapter, end_verse: book.verse_count(end_chapter)
-        }
+        Range.new(start_chapter, 1, end_chapter, book.verse_count(end_chapter))
       end
 
       def whole_book_range(book)
-        {
-          start_chapter: 1,
-          start_verse: 1,
-          end_chapter: book.chapter_count,
-          end_verse: book.verse_count(book.chapter_count)
-        }
+        Range.new(1, 1, book.chapter_count, book.verse_count(book.chapter_count))
       end
 
       def validate_ranges(ranges, book)
@@ -219,10 +199,10 @@ module Pericope
       end
 
       def validate_range(range, book)
-        validate_chapter(book, range[:start_chapter])
-        validate_chapter(book, range[:end_chapter])
-        validate_verse(book, range[:start_chapter], range[:start_verse])
-        validate_verse(book, range[:end_chapter], range[:end_verse])
+        validate_chapter(book, range.start_chapter)
+        validate_chapter(book, range.end_chapter)
+        validate_verse(book, range.start_chapter, range.start_verse)
+        validate_verse(book, range.end_chapter, range.end_verse)
         validate_range_order(range)
       end
 
@@ -239,10 +219,10 @@ module Pericope
       end
 
       def validate_range_order(range)
-        return if range[:start_chapter] < range[:end_chapter]
-        return if range[:start_chapter] == range[:end_chapter] && range[:start_verse] <= range[:end_verse]
+        return if range.start_chapter < range.end_chapter
+        return if range.start_chapter == range.end_chapter && range.start_verse <= range.end_verse
 
-        raise InvalidRangeError.new(format_ranges([range]))
+        raise InvalidRangeError, format_ranges([range])
       end
     end
   end

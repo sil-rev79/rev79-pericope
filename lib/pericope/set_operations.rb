@@ -2,6 +2,7 @@
 
 require "set"
 require_relative "verse_ref"
+require_relative "range"
 
 module Pericope
   # Set operations for Pericope objects
@@ -147,23 +148,14 @@ module Pericope
           if current_end.next_verse == verse
             current_end = verse
           else
-            ranges << build_range_hash(current_start, current_end)
+            ranges << Range.from_verse_refs(current_start, current_end)
             current_start = verse
             current_end = verse
           end
         end
 
-        ranges << build_range_hash(current_start, current_end)
+        ranges << Range.from_verse_refs(current_start, current_end)
         ranges
-      end
-
-      def build_range_hash(start_verse, end_verse)
-        {
-          start_chapter: start_verse.chapter,
-          start_verse: start_verse.verse,
-          end_chapter: end_verse.chapter,
-          end_verse: end_verse.verse
-        }
       end
     end
   end

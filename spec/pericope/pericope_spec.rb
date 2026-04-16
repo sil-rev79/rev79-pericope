@@ -23,10 +23,10 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.range_count).to eq(1)
       range = pericope.ranges[0]
 
-      expect(range[:start_chapter]).to eq(1)
-      expect(range[:start_verse]).to eq(22)
-      expect(range[:end_chapter]).to eq(1)
-      expect(range[:end_verse]).to eq(24)
+      expect(range.start_chapter).to eq(1)
+      expect(range.start_verse).to eq(22)
+      expect(range.end_chapter).to eq(1)
+      expect(range.end_verse).to eq(24)
     end
 
     it "parses a reference with '.' as delimiter" do
@@ -60,26 +60,14 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.range_count).to eq(4)
 
       expect(pericope.ranges).to contain_exactly(
-        {
-          # 1 -> whole chapter 1
-          start_chapter: 1, start_verse: 1,
-          end_chapter: 1, end_verse: 31 # Genesis 1 has 31 verses
-        },
-        {
-          # 5-7 -> all of chapters 5 through 7
-          start_chapter: 5, start_verse: 1,
-          end_chapter: 7, end_verse: 24 # Genesis 7 has 24 verses
-        },
-        {
-          # 11:1-3 -> verses 1-3 of chapter 11
-          start_chapter: 11, start_verse: 1,
-          end_chapter: 11, end_verse: 3
-        },
-        {
-          # 5-7 -> verses 5-7 of chapter 11
-          start_chapter: 11, start_verse: 5,
-          end_chapter: 11, end_verse: 7
-        }
+        # 1 -> whole of chapter 1
+        Pericope::Range.new(1, 1, 1, 31), # Genesis 1 has 31 verses
+        # 5-7 -> all of chapters 5 through 7
+        Pericope::Range.new(5, 1, 7, 24), # Genesis 7 has 24 verses
+        # 11:1-3 -> verses 1-3 of chapter 11
+        Pericope::Range.new(11, 1, 11, 3),
+        # 5-7 -> verses 5-7 of chapter 11
+        Pericope::Range.new(11, 5, 11, 7)
       )
     end
 
@@ -88,10 +76,10 @@ RSpec.describe Pericope::Pericope do
       expect(pericope.range_count).to eq(1)
       range = pericope.ranges[0]
 
-      expect(range[:start_chapter]).to eq(1)
-      expect(range[:start_verse]).to eq(1)
-      expect(range[:end_chapter]).to eq(50) # Genesis has 50 chapters
-      expect(range[:end_verse]).to eq(26) # Genesis 50 has 26 verses
+      expect(range.start_chapter).to eq(1)
+      expect(range.start_verse).to eq(1)
+      expect(range.end_chapter).to eq(50) # Genesis has 50 chapters
+      expect(range.end_verse).to eq(26) # Genesis 50 has 26 verses
     end
 
     it "raises ParseError for empty reference" do

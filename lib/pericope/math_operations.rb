@@ -14,10 +14,10 @@ module Pericope
 
         count = 0
         pericope.ranges.each do |range|
-          next unless chapter.between?(range[:start_chapter], range[:end_chapter])
+          next unless chapter.between?(range.start_chapter, range.end_chapter)
 
-          start_verse = chapter == range[:start_chapter] ? range[:start_verse] : 1
-          end_verse = chapter == range[:end_chapter] ? range[:end_verse] : pericope.book.verse_count(chapter)
+          start_verse = chapter == range.start_chapter ? range.start_verse : 1
+          end_verse = chapter == range.end_chapter ? range.end_verse : pericope.book.verse_count(chapter)
 
           count += (end_verse - start_verse + 1)
         end
@@ -27,10 +27,10 @@ module Pericope
       def chapters_in_range(pericope)
         result = {}
         pericope.ranges.each do |range|
-          (range[:start_chapter]..range[:end_chapter]).each do |chapter|
+          (range.start_chapter..range.end_chapter).each do |chapter|
             result[chapter] ||= []
-            start_verse = chapter == range[:start_chapter] ? range[:start_verse] : 1
-            end_verse = chapter == range[:end_chapter] ? range[:end_verse] : pericope.book.verse_count(chapter)
+            start_verse = chapter == range.start_chapter ? range.start_verse : 1
+            end_verse = chapter == range.end_chapter ? range.end_verse : pericope.book.verse_count(chapter)
 
             (start_verse..end_verse).each do |verse|
               result[chapter] << verse unless result[chapter].include?(verse)
@@ -139,9 +139,9 @@ module Pericope
       def collect_all_verses(pericope)
         all_verses = ::Set.new
         pericope.ranges.each do |range|
-          (range[:start_chapter]..range[:end_chapter]).each do |chapter|
-            start_verse = chapter == range[:start_chapter] ? range[:start_verse] : 1
-            end_verse = chapter == range[:end_chapter] ? range[:end_verse] : pericope.book.verse_count(chapter)
+          (range.start_chapter..range.end_chapter).each do |chapter|
+            start_verse = chapter == range.start_chapter ? range.start_verse : 1
+            end_verse = chapter == range.end_chapter ? range.end_verse : pericope.book.verse_count(chapter)
 
             (start_verse..end_verse).each do |verse|
               all_verses << VerseRef.new(pericope.book, chapter, verse)

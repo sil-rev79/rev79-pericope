@@ -3,6 +3,7 @@
 require "set"
 require_relative "book"
 require_relative "verse_ref"
+require_relative "range"
 require_relative "errors"
 require_relative "text_processor"
 require_relative "math_operations"
@@ -38,14 +39,14 @@ module Pericope
     def to_a
       verses = []
       @ranges.each do |range|
-        if range[:start_verse] == range[:end_verse] && range[:start_chapter] == range[:end_chapter]
+        if range.single_verse?
           # Single verse
-          verses << VerseRef.new(@book, range[:start_chapter], range[:start_verse])
+          verses << VerseRef.new(@book, range.start_chapter, range.start_verse)
         else
           # Range of verses
-          (range[:start_chapter]..range[:end_chapter]).each do |chapter|
-            start_verse = chapter == range[:start_chapter] ? range[:start_verse] : 1
-            end_verse = chapter == range[:end_chapter] ? range[:end_verse] : @book.verse_count(chapter)
+          (range.start_chapter..range.end_chapter).each do |chapter|
+            start_verse = chapter == range.start_chapter ? range.start_verse : 1
+            end_verse = chapter == range.end_chapter ? range.end_verse : @book.verse_count(chapter)
 
             (start_verse..end_verse).each do |verse|
               verses << VerseRef.new(@book, chapter, verse)
@@ -61,12 +62,7 @@ module Pericope
       return false unless @book&.valid?
       return false if @ranges.empty?
 
-      @ranges.all? do |range|
-        range[:start_chapter].positive? && range[:end_chapter].positive? &&
-          range[:start_verse].positive? && range[:end_verse].positive? &&
-          range[:start_chapter] <= @book.chapter_count &&
-          range[:end_chapter] <= @book.chapter_count
-      end
+      @ranges.all? { _1.valid_in_book?(@book) }
     end
 
     def empty?
@@ -74,17 +70,15 @@ module Pericope
     end
 
     def single_verse?
-      @ranges.length == 1 &&
-        @ranges.first[:start_chapter] == @ranges.first[:end_chapter] &&
-        @ranges.first[:start_verse] == @ranges.first[:end_verse]
+      @ranges.length == 1 && @ranges.first.single_verse?
     end
 
     def single_chapter?
-      @ranges.all? { |range| range[:start_chapter] == range[:end_chapter] }
+      @ranges.all?(&:single_chapter?)
     end
 
     def spans_chapters?
-      @ranges.any? { |range| range[:start_chapter] != range[:end_chapter] }
+      @ranges.any?(&:spans_chapters?)
     end
 
     def spans_books?
@@ -109,7 +103,7 @@ module Pericope
     def chapter_list
       chapters = ::Set.new
       @ranges.each do |range|
-        (range[:start_chapter]..range[:end_chapter]).each { |ch| chapters << ch }
+        (range.start_chapter..range.end_chapter).each { |ch| chapters << ch }
       end
       chapters.to_a.sort
     end
@@ -121,15 +115,15 @@ module Pericope
     def first_verse
       return nil if @ranges.empty?
 
-      first_range = @ranges.min_by { |r| [r[:start_chapter], r[:start_verse]] }
-      VerseRef.new(@book, first_range[:start_chapter], first_range[:start_verse])
+      first_range = @ranges.min_by { |r| [r.start_chapter, r.start_verse] }
+      VerseRef.new(@book, first_range.start_chapter, first_range.start_verse)
     end
 
     def last_verse
       return nil if @ranges.empty?
 
-      last_range = @ranges.max_by { |r| [r[:end_chapter], r[:end_verse]] }
-      VerseRef.new(@book, last_range[:end_chapter], last_range[:end_verse])
+      last_range = @ranges.max_by { |r| [r.end_chapter, r.end_verse] }
+      VerseRef.new(@book, last_range.end_chapter, last_range.end_verse)
     end
 
     def range_count

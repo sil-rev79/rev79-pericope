@@ -209,8 +209,8 @@ RSpec.describe Pericope::Versification do
     end
 
     it "has expected chapter counts for all books" do
-      book_data_chapter_counts = Pericope::BookData::OLD_TESTAMENT_BOOKS.to_h { [it.code, it.chapter_count] }
-      book_data_chapter_counts.merge!(Pericope::BookData::NEW_TESTAMENT_BOOKS.to_h { [it.code, it.chapter_count] })
+      book_data_chapter_counts = Pericope::BookData::OLD_TESTAMENT_BOOKS.to_h { [_1.code, _1.chapter_count] }
+      book_data_chapter_counts.merge!(Pericope::BookData::NEW_TESTAMENT_BOOKS.to_h { [_1.code, _1.chapter_count] })
       versification_chapter_counts = described_class::ENGLISH.transform_values(&:length)
       expect(versification_chapter_counts).to eq book_data_chapter_counts
     end
