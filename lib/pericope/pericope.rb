@@ -32,7 +32,13 @@ module Pericope
 
     # String representation
     def to_s(format = :canonical)
-      TextProcessor.format_pericope(self, format)
+      return "" if @ranges.empty?
+
+      book_s = format == :full_name ? @book.name : @book.code
+      # if we are only dealing in full chapters, don't show verses except for canonical
+      exclude_verses = format != :canonical && @ranges.all? { _1.full_chapters_in_book?(@book) }
+      ranges_s = @ranges.map { _1.to_s(exclude_verses: exclude_verses) }.join(",")
+      "#{book_s} #{ranges_s}"
     end
 
     # Convert to array of VerseRef objects

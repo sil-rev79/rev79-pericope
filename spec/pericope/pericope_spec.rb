@@ -191,6 +191,11 @@ RSpec.describe Pericope::Pericope do
       pericope.instance_variable_set(:@ranges, [])
       expect(pericope.to_s).to eq("")
     end
+
+    it "wont output verses when all ranges are full chapters and not canonical format" do
+      pericope = described_class.new("GEN 1-3, 5:1-32") # chapter 5 has 32 verses
+      expect(pericope.to_s(:abbreviated)).to eq("GEN 1–3,5")
+    end
   end
 
   describe "#to_a" do

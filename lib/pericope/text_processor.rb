@@ -37,18 +37,6 @@ module Pericope
         [text]
       end
 
-      # Format a pericope as string
-      def format_pericope(pericope, format = :canonical)
-        return "" if pericope.ranges.empty?
-
-        case format
-        when :full_name
-          "#{pericope.book.name} #{format_ranges(pericope.ranges)}"
-        else # :canonical, :abbreviated, or any other format
-          "#{pericope.book.code} #{format_ranges(pericope.ranges)}"
-        end
-      end
-
       # Parse a reference string into book and ranges
       def parse_reference(reference_string, _versification = nil)
         if reference_string.nil? || reference_string.strip.empty?
@@ -83,22 +71,6 @@ module Pericope
       end
 
       private
-
-      def format_ranges(ranges)
-        # NOTE: en-dash is used for ranges
-        ranges.map do |range|
-          if range.single_verse?
-            # Single verse
-            "#{range.start_chapter}:#{range.start_verse}"
-          elsif range.single_chapter?
-            # Same chapter range
-            "#{range.start_chapter}:#{range.start_verse}–#{range.end_verse}"
-          else
-            # Cross-chapter range
-            "#{range.start_chapter}:#{range.start_verse}–#{range.end_chapter}:#{range.end_verse}"
-          end
-        end.join(",")
-      end
 
       def parse_ranges(range_text, book)
         ranges = []
@@ -222,7 +194,7 @@ module Pericope
         return if range.start_chapter < range.end_chapter
         return if range.start_chapter == range.end_chapter && range.start_verse <= range.end_verse
 
-        raise InvalidRangeError, format_ranges([range])
+        raise InvalidRangeError, range
       end
     end
   end
