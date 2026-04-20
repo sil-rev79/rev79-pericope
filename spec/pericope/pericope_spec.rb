@@ -196,6 +196,16 @@ RSpec.describe Pericope::Pericope do
       pericope = described_class.new("GEN 1-3, 5:1-32") # chapter 5 has 32 verses
       expect(pericope.to_s(:abbreviated)).to eq("GEN 1–3,5")
     end
+
+    it "wont output chapter number for a single-chapter book when abbreviated format" do
+      pericope = described_class.new("Jude 1:2-5")
+      expect(pericope.to_s(:abbreviated)).to eq("JUD 2–5")
+    end
+
+    it "wont output chapter or verse numbers for a whole book when abbreviated format" do
+      pericope = described_class.new("Genesis")
+      expect(pericope.to_s(:abbreviated)).to eq("GEN")
+    end
   end
 
   describe "#to_a" do

@@ -39,23 +39,9 @@ module Pericope
       }
     end
 
-    def to_s(exclude_verses: false)
+    def to_s(exclude_chapters: false, exclude_verses: false)
       # NOTE: en-dash is used for range delimiter
-      if single_verse?
-        "#{start_chapter}:#{start_verse}"
-      elsif single_chapter?
-        if exclude_verses
-          start_chapter.to_s
-        else
-          "#{start_chapter}:#{start_verse}–#{end_verse}"
-        end
-      elsif exclude_verses
-        # Cross-chapter range without verses
-        "#{start_chapter}–#{end_chapter}"
-      else
-        # Cross-chapter range with verses
-        "#{start_chapter}:#{start_verse}–#{end_chapter}:#{end_verse}"
-      end
+      exclude_chapters ? output_without_chapters(exclude_verses) : output_with_chapters(exclude_verses)
     end
 
     def single_verse?
@@ -81,6 +67,10 @@ module Pericope
       start_verse == 1 && end_verse == book.verse_count(end_chapter)
     end
 
+    def full_book?(book)
+      full_chapters_in_book?(book) && start_chapter == 1 && end_chapter == book.chapter_count
+    end
+
     def ==(other)
       return false unless other.is_a?(Range)
 
@@ -94,6 +84,34 @@ module Pericope
 
     def hash
       [start_chapter, start_verse, end_chapter, end_verse].hash
+    end
+
+    private
+
+    def output_with_chapters(exclude_verses)
+      if single_verse?
+        "#{start_chapter}:#{start_verse}"
+      elsif single_chapter?
+        if exclude_verses
+          start_chapter.to_s
+        else
+          "#{start_chapter}:#{start_verse}–#{end_verse}"
+        end
+      elsif exclude_verses
+        "#{start_chapter}–#{end_chapter}"
+      else
+        "#{start_chapter}:#{start_verse}–#{end_chapter}:#{end_verse}"
+      end
+    end
+
+    def output_without_chapters(exclude_verses)
+      if single_verse?
+        start_verse.to_s
+      elsif exclude_verses
+        ""
+      else
+        "#{start_verse}–#{end_verse}"
+      end
     end
   end
 end

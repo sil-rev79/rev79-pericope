@@ -37,8 +37,12 @@ module Pericope
       book_s = format == :full_name ? @book.name : @book.code
       # if we are only dealing in full chapters, don't show verses except for canonical
       exclude_verses = format != :canonical && @ranges.all? { _1.full_chapters_in_book?(@book) }
-      ranges_s = @ranges.map { _1.to_s(exclude_verses: exclude_verses) }.join(",")
-      "#{book_s} #{ranges_s}"
+      # for full book or single chapter book, don't show chapters if abbreviated
+      exclude_chapters = format == :abbreviated && (@book.chapter_count == 1 || @ranges.first.full_book?(@book))
+      ranges_s = @ranges.map do |range|
+        range.to_s(exclude_chapters: exclude_chapters, exclude_verses: exclude_verses)
+      end.reject(&:empty?).join(",")
+      "#{book_s} #{ranges_s}".strip
     end
 
     # Convert to array of VerseRef objects
