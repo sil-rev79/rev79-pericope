@@ -30,6 +30,17 @@ module Pericope
       TextProcessor.split(text, versification)
     end
 
+    def self.normalize(*pericopes)
+      normal = pericopes.group_by(&:book).transform_values! do |pericope_set|
+        # combine the ranges of pericopes in the same book
+        pericope = pericope_set.pop
+        pericope_set.each { pericope.add_ranges(*_1.ranges) }
+        # then normalize that combined pericope
+        pericope.normalize
+      end
+      normal.sort_by { |book, _| book.number }.to_h.values # sort by book
+    end
+
     # String representation
     def to_s(format = :canonical)
       return "" if @ranges.empty?
@@ -138,6 +149,10 @@ module Pericope
 
     def range_count
       @ranges.length
+    end
+
+    def add_ranges(*additional_ranges)
+      @ranges += additional_ranges
     end
 
     # Advanced mathematical operations (Phase 3.3) - delegated to MathOperations module

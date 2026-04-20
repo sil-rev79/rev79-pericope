@@ -236,6 +236,29 @@ RSpec.describe Pericope::Pericope do
     end
   end
 
+  describe "#normalize" do
+    it "normalizes a mixed bunch of pericopes" do
+      references = [
+        "2 Pet 2",
+        "Genesis 4,6,8",
+        "Obadiah 1:5-15",
+        "Exodus 3:8-10",
+        "Genesis 2:16",
+        "Jude",
+        "Genesis 2:17-3:24",
+        "Exodus 1:12-18",
+        "Obadiah 1:10-18",
+        "2 Peter 1,3",
+        "Genesis 2:1-15"
+      ]
+      pericopes = references.map { described_class.new(_1) }
+      normal_pericopes = described_class.normalize(*pericopes)
+      expect(normal_pericopes.map do |pericope|
+        pericope.to_s(:abbreviated)
+      end.join("; ")).to eq "GEN 2–4,6,8; EXO 1:12–18,3:8–10; OBA 5–18; 2PE; JUD"
+    end
+  end
+
   describe "validation methods" do
     let(:valid_pericope) { described_class.new("GEN 1:1") }
     let(:empty_pericope) do
